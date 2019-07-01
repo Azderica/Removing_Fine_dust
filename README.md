@@ -16,6 +16,7 @@ Later, the project will be used for webOS contest and IOT contest.
 
 ## 2. Project Schedule
 > ~ 2019.07.13 : WebOS contest
+
 > ~ 2019.07.26 : IOT contest
 
 

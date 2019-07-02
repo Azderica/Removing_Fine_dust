@@ -21,7 +21,8 @@ Later, the project will be used for webOS contest and IOT contest.
 
 
 ## 3. project content
-> 
+Simple Design
+![Removing Fine dust](https://github.com/Azderica/Removing_Fine_dust/blob/master/images/proto_design.jpg)
 
 
 

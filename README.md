@@ -15,13 +15,14 @@ Later, the project will be used for webOS contest and IOT contest.
 
 
 ## 2. Project Schedule
-> ~ 2019.07.13 : WebOS contest
+> ~ 2019.07.13 : [WebOS contest](http://enroll.lgsoftindia.com/webos/login.aspx)
 
-> ~ 2019.07.26 : IOT contest
+> ~ 2019.07.26 : [Wiznet IOT contest](http://marker.wiznet.io)
 
 
 ## 3. project content
-> 
+Simple Design
+![Removing Fine dust](https://github.com/Azderica/Removing_Fine_dust/blob/master/images/proto_design.jpg)
 
 
 

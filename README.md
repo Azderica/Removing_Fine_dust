@@ -1,6 +1,6 @@
 # Removing Fine dust
 ------
-> This project is a project for an internship in India.<br>
+This project is a project for an internship in India.<br>
 Later, the project will be used for webOS contest and IOT contest.
 
 

@@ -11,6 +11,14 @@ import argparse
 import cv2
 import imutils
 import time
+import socket
+import threading
+
+# this is for socket 
+my_ip_address = '172.17.0.1'
+my_port = 8300
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((my_ip_address, my_port))
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -34,6 +42,7 @@ counter = 0
 rad = 0
 # (dX, dY) = (0, 0)
 direction = ""
+sendData = ""
 
 # if a video path was not supplied, grab the reference
 # to the webcam
@@ -46,6 +55,16 @@ else:
 
 # allow the camera or video file to warm up
 time.sleep(2.0)
+
+end = False
+def send_coor(second=1.0):
+	global end
+	if end:
+		return
+	threading.Timer(second, send_coor, [second]).start()
+	sock.send(sendData.encode('utf-8'))
+
+#send_coor(10.0)
 
 # keep looping
 while True:
@@ -90,7 +109,7 @@ while True:
 	center = None
 
 	cnts2 = cv2.findContours(mask2.copy(), cv2.RETR_EXTERNAL,
-                         cv2.CHAIN_APPROX_SIMPLE)
+                          cv2.CHAIN_APPROX_SIMPLE)
 	cnts2 = imutils.grab_contours(cnts2)
 	center2 = None
 
@@ -121,55 +140,6 @@ while True:
 			pts.appendleft(center)
 			pts.appendleft(center2)
 
-	# this si for dX, dY, direction
-
-	# # loop over the set of tracked points
-	# for i in np.arange(1, len(pts)):
-	# 	# if either of the tracked points are None, ignore
-	# 	# them
-	# 	if pts[i - 1] is None or pts[i] is None:
-	# 		continue
-
-	# 	# check to see if enough points have been accumulated in
-	# 	# the buffer
-	# 	if counter >= 10 and i == 1 and pts[-10] is not None:
-	# 		# compute the difference between the x and y
-	# 		# coordinates and re-initialize the direction
-	# 		# text variables
-	# 		dX = pts[-10][0] - pts[i][0]
-	# 		dY = pts[-10][1] - pts[i][1]
-	# 		(dirX, dirY) = ("", "")
-
-	# 		# ensure there is significant movement in the
-	# 		# x-direction
-	# 		if np.abs(dX) > 20:
-	# 			dirX = "East" if np.sign(dX) == 1 else "West"
-
-	# 		# ensure there is significant movement in the
-	# 		# y-direction
-	# 		if np.abs(dY) > 20:
-	# 			dirY = "North" if np.sign(dY) == 1 else "South"
-
-	# 		# handle when both directions are non-empty
-	# 		if dirX != "" and dirY != "":
-	# 			direction = "{}-{}".format(dirY, dirX)
-
-	# 		# otherwise, only one direction is non-empty
-	# 		else:
-	# 			direction = dirX if dirX != "" else dirY
-
-	# 	# otherwise, compute the thickness of the line and
-	# 	# draw the connecting lines
-	# 	thickness = int(np.sqrt(args["buffer"] / float(i + 1)) * 2.5)
-	# 	cv2.line(frame, pts[i - 1], pts[i], (0, 0, 255), thickness)
-
-	# # show the movement deltas and the direction of movement on
-	# # the frame
-	# cv2.putText(frame, direction, (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
-    #          0.65, (0, 255, 255), 3)
-	# cv2.putText(frame, "dx: {}, dy: {}".format(dX, dY),
-    #          (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
-    #          0.35, (0, 255, 255), 1)
 	rad = math.atan2((center2[1]-center[1]), (center2[0]-center[0]))
 
 	cv2.putText(frame, "Blue X: {}, Blue Y: {}".format(center[0], center[1]),
@@ -178,6 +148,11 @@ while True:
 	cv2.putText(frame, "Red X: {}, Red Y: {}, Radian: {}".format(center2[0], center2[1], rad),
              (10, frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX,
              0.35, (0, 255, 255), 1)
+
+	sendData = ("X:" + str(center[0]) + " Y:" + str(center[1]) + " Rad:" + str(rad))
+	#time.sleep(0.5)
+	sock.send(sendData.encode('utf-8'))
+	#send_coor(10.0)
 
 	# show the frame to our screen and increment the frame counter
 	cv2.imshow("Frame", frame)

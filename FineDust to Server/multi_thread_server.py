@@ -2,16 +2,18 @@
 
 import socketserver
 import threading
- 
+from parse import *
+
 HOST = ''
 PORT = 9009
 lock = threading.Lock() # syncronized 동기화 진행하는 스레드 생성
- 
+arduino ={}
+#cleaner = None
 class UserManager: # 사용자관리 메세지 전송을 담당하는 클래스
-                    
    def __init__(self):
       self.users = {} # 사용자의 등록 정보를 담을 사전 {사용자 이름:(소켓,주소),...}
- 
+      message = None
+
    def addUser(self, username, conn, addr): # 사용자 ID를 self.users에 추가하는 함수
       if username in self.users: # 이미 등록된 사용자라면
          conn.send('이미 등록된 아두이노입니다.\n'.encode())
@@ -39,20 +41,62 @@ class UserManager: # 사용자관리 메세지 전송을 담당하는 클래스
       print('--- 현재 연결된 아두이노 수 : [%d]' %len(self.users))
  
    def messageHandler(self, username, msg): # 전송한 msg를 처리하는 부분
-      if msg[0] != '/': # 보낸 메세지의 첫문자가 '/'가 아니면
-         #self.sendMessageToAll('[%s] %s' %(username, msg))
-         print('[%s] %s' %(username, msg))
+      
+      print('[%s] %s' %(username, msg))
+      val = float(msg)*0.01
+      if username=="camera":
+         pass
+      else:
+         if username in arduino:
+            arduino[username]=round(arduino[username]*0.3+val*0.7,2)
+         else:
+            arduino[username]=float(msg)*0.01
+         print(arduino)
+         #message = Message(username,msg)
+         #print(arduino[username])
          return
  
-      if msg.strip() == '/quit': # 보낸 메세지가 'quit'이면
-         self.removeUser(username)
-         return -1
  
    def sendMessageToAll(self, msg):
       for conn, addr in self.users.values():
          conn.send(msg.encode())
-           
- 
+         
+class Arduino:
+   def __init__(self,username,msg):
+      self.username = username
+      p = parse("{time}:b'{value}\r\n'",msg)
+      self.time = int(p['time'])
+      self.value = float(p['value'])
+
+   def getUsername(self):
+      return self.username
+
+   def getValue(self):
+      return self.value
+
+class Cleaner:
+   def __init__(self,msg):
+      self.x 
+      self.y
+      self.rad
+      self.sign
+
+   def setCleaner(self,x,y,rad,sign):
+      self.x = x
+      self.y = y
+      self.rad = rad
+      self.sign = sign
+      return
+   
+   def getX(self):
+      return self.x
+   def getY(self):
+      return self.y
+   def getRad(self):
+      return self.rad
+   def getSign(self):
+      return self.sign
+   
 class MyTcpHandler(socketserver.BaseRequestHandler):
    userman = UserManager()
      
@@ -77,12 +121,13 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
  
    def registerUsername(self):
       while True:
-         self.request.send('Enter your Arduino ID:'.encode())
+         self.request.send('Enter ID:'.encode())
          username = self.request.recv(1024)
          username = username.decode().strip()
          if self.userman.addUser(username, self.request, self.client_address):
             return username
- 
+
+
 class ChatingServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
          

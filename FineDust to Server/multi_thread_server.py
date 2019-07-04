@@ -1,13 +1,18 @@
 # multi_threaded server
 
 import socketserver
+import socket
 import threading
+import time
 from parse import *
 
 HOST = ''
+wifi_ip_address = '192.168.43.88'
 PORT = 9009
+PORT2 = 9000
+
 lock = threading.Lock() # syncronized 동기화 진행하는 스레드 생성
-arduino ={}
+module ={}
 #cleaner = None
 class UserManager: # 사용자관리 메세지 전송을 담당하는 클래스
    def __init__(self):
@@ -43,15 +48,24 @@ class UserManager: # 사용자관리 메세지 전송을 담당하는 클래스
    def messageHandler(self, username, msg): # 전송한 msg를 처리하는 부분
       
       print('[%s] %s' %(username, msg))
-      val = float(msg)*0.01
-      if username=="camera":
-         pass
-      else:
-         if username in arduino:
-            arduino[username]=round(arduino[username]*0.3+val*0.7,2)
+
+      if username =="camera":
+         print("카메라연결")
+         if username in module:
+            module[username].setCleaner(msg)
          else:
-            arduino[username]=float(msg)*0.01
-         print(arduino)
+            module[username]=Cleaner(msg)
+         print(module)
+         print(username+" : "+str(module[username].getX())+","+str(module[username].getRad()))
+      else:
+         print("카메라 말고")
+         val = float(msg)*0.01
+         if username in module:
+            module[username].setArduino(val)
+         else:
+            module[username]=Arduino(username,msg)
+         print(module)
+         print(username+" : "+str(module[username].getValue()))
          #message = Message(username,msg)
          #print(arduino[username])
          return
@@ -61,31 +75,35 @@ class UserManager: # 사용자관리 메세지 전송을 담당하는 클래스
       for conn, addr in self.users.values():
          conn.send(msg.encode())
          
-class Arduino:
+class Arduino: #아두이노 미세먼지 모듈
    def __init__(self,username,msg):
       self.username = username
-      p = parse("{time}:b'{value}\r\n'",msg)
-      self.time = int(p['time'])
-      self.value = float(p['value'])
+      self.value = float(msg)*0.01
 
+   def setArduino(self,val):
+      self.value = round(self.getValue()*0.3 + val*0.7,2)
+      return
+   
    def getUsername(self):
       return self.username
 
    def getValue(self):
       return self.value
 
-class Cleaner:
+class Cleaner: #공기청정기
    def __init__(self,msg):
-      self.x 
-      self.y
-      self.rad
-      self.sign
+      temp = msg.split(",")
+      self.x =int(temp[0])
+      self.y = int(temp[1])
+      self.rad = int(temp[2])
+      self.sign = int(temp[3])
 
-   def setCleaner(self,x,y,rad,sign):
-      self.x = x
-      self.y = y
-      self.rad = rad
-      self.sign = sign
+   def setCleaner(self,msg):
+      temp = msg.split(",")
+      self.x =int(temp[0])
+      self.y = int(temp[1])
+      self.rad = int(temp[2])
+      self.sign = int(temp[3])
       return
    
    def getX(self):
@@ -102,7 +120,7 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
      
    def handle(self): # 클라이언트가 접속시 클라이언트 주소 출력
       print('[%s] 연결됨' %self.client_address[0])
- 
+      
       try:
          username = self.registerUsername()
          msg = self.request.recv(1024)
@@ -142,6 +160,20 @@ def runServer():
       print('--- 서버를 종료합니다.')
       server.shutdown()
       server.server_close()
- 
+
+      
+def send(sock):
+    while True:
+        sendData = input('>>>')
+        sock.send(sendData.encode('utf-8'))
+
+def receive(sock):
+    while True:
+        recvData = sock.recv(1024)
+        print('', recvData.decode('utf-8'))
+        
+
+
+
 runServer()
 

@@ -14,13 +14,13 @@ def receive(sock):
 
 # this is for checking 
 my_ip_address = '172.17.0.1'
-my_port = 8300
+my_port = 8400
 
 # wifi ip address
 wifi_ip_address = '192.168.43.88'
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((wifi_ip_address, my_port))
+server_socket.bind((my_ip_address, my_port))
 server_socket.listen(1)
 
 client_socket, addr = server_socket.accept()

@@ -9,7 +9,7 @@ from parse import *
 HOST = ''
 wifi_ip_address = '192.168.43.88'
 PORT = 9009
-PORT2 = 9000
+
 
 lock = threading.Lock() # syncronized 동기화 진행하는 스레드 생성
 module ={}
@@ -73,7 +73,10 @@ class UserManager: # 사용자관리 메세지 전송을 담당하는 클래스
  
    def sendMessageToAll(self, msg):
       for conn, addr in self.users.values():
-         conn.send(msg.encode())
+         conn.send(msg.encode('utf-8'))
+         
+   def sendMessageToUser(self, username,msg):
+      self.users[username][0].send(msg.encode('utf-8'))
          
 class Arduino: #아두이노 미세먼지 모듈
    def __init__(self,username,msg):
@@ -120,20 +123,34 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
      
    def handle(self): # 클라이언트가 접속시 클라이언트 주소 출력
       print('[%s] 연결됨' %self.client_address[0])
-      
-      try:
-         username = self.registerUsername()
-         msg = self.request.recv(1024)
-         while msg:
-            print(msg.decode())
-            if self.userman.messageHandler(username, msg.decode()) == -1:
-               self.request.close()
-               break
+      if self.client_address[0]=='192.168.43.194':
+         username = 'rccar'
+         self.userman.addUser(username, self.request, self.client_address)
+         print("제발")
+         while True:
+            #if self.userman.messageHandler(username, msg.decode()) == -1:
+               #self.request.close()
+               #break
+            print("100,100 전송")
+            self.userman.sendMessageToUser(username, "100,100")
+            #self.userman.sendMessageToAll("50,50")
+            time.sleep(20)
+            
+               
+      else:
+         try:
+            username = self.registerUsername()
             msg = self.request.recv(1024)
+            while msg:
+               print(msg.decode())
+               if self.userman.messageHandler(username, msg.decode()) == -1:
+                  self.request.close()
+                  break
+               msg = self.request.recv(1024)
                  
-      except Exception as e:
-         print(e)
- 
+         except Exception as e:
+            print(e)
+
       print('[%s] 접속종료' %self.client_address[0])
       self.userman.removeUser(username)
  

@@ -126,7 +126,7 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
       if self.client_address[0]=='192.168.43.194':
          username = 'rccar'
          self.userman.addUser(username, self.request, self.client_address)
-         print("제발")
+         #print("제발")
          while True:
             #if self.userman.messageHandler(username, msg.decode()) == -1:
                #self.request.close()
@@ -134,7 +134,7 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
             print("100,100 전송")
             self.userman.sendMessageToUser(username, "100,100")
             #self.userman.sendMessageToAll("50,50")
-            time.sleep(20)
+            time.sleep(5)
             
                
       else:

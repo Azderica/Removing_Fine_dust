@@ -7,7 +7,6 @@ import time
 from parse import *
 
 HOST = ''
-wifi_ip_address = '192.168.43.88'
 PORT = 9009
 
 
@@ -56,7 +55,9 @@ class UserManager: # 사용자관리 메세지 전송을 담당하는 클래스
          else:
             module[username]=Cleaner(msg)
          print(module)
-         print(username+" : "+str(module[username].getX())+","+str(module[username].getRad()))
+
+         print(username+" : "+str(module[username].getX())+","+str(module[username].getY())+","+str(module[username].getRad()))
+       
       else:
          print("카메라 말고")
          val = float(msg)*0.01
@@ -99,14 +100,12 @@ class Cleaner: #공기청정기
       self.x =int(temp[0])
       self.y = int(temp[1])
       self.rad = int(temp[2])
-      self.sign = int(temp[3])
 
    def setCleaner(self,msg):
       temp = msg.split(",")
       self.x =int(temp[0])
       self.y = int(temp[1])
       self.rad = int(temp[2])
-      self.sign = int(temp[3])
       return
    
    def getX(self):
@@ -115,8 +114,6 @@ class Cleaner: #공기청정기
       return self.y
    def getRad(self):
       return self.rad
-   def getSign(self):
-      return self.sign
    
 class MyTcpHandler(socketserver.BaseRequestHandler):
    userman = UserManager()
@@ -132,9 +129,9 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
                #self.request.close()
                #break
             print("100,100 전송")
-            self.userman.sendMessageToUser(username, "100,100")
+            self.userman.sendMessageToUser(username, "0,1000")
             #self.userman.sendMessageToAll("50,50")
-            time.sleep(5)
+            time.sleep(2)
             
                
       else:

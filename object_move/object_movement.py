@@ -16,7 +16,7 @@ import threading
 
 # this is for socket 
 my_ip_address = '172.17.0.1'
-my_port = 8300
+my_port = 8400
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((my_ip_address, my_port))
 
@@ -40,6 +40,8 @@ blueUpper = (130, 255, 255)
 pts = deque(maxlen=args["buffer"])
 counter = 0
 rad = 0
+i_rad;
+plus = 0
 # (dX, dY) = (0, 0)
 direction = ""
 sendData = ""
@@ -149,7 +151,13 @@ while True:
              (10, frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX,
              0.35, (0, 255, 255), 1)
 
-	sendData = ("X:" + str(center[0]) + " Y:" + str(center[1]) + " Rad:" + str(rad))
+	if rad > 0:
+		plus = 1
+	else:
+		plus = 0
+	i_rad = int(rad*10000)
+
+	sendData = (str(center[0]) + "," + str(center[1]) + "," + str(i_rad) + ","+str(plus))
 	#time.sleep(0.5)
 	sock.send(sendData.encode('utf-8'))
 	#send_coor(10.0)

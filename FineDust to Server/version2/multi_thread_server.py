@@ -129,7 +129,7 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
                #self.request.close()
                #break
             print("전송")
-            self.userman.sendMessageToUser(username, "5000,0")
+            self.userman.sendMessageToUser(username, "0,5000")
             #self.userman.sendMessageToAll("50,50")
             time.sleep(2)
             

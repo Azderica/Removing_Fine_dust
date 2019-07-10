@@ -3,6 +3,8 @@ import math
 
 MAX_SIZE = 300
 Map =[[0]*300 for i in range(300)] # 모든원소가 0인 300x300 리스트
+miniMap =[[0]*30 for i in range(30)] # 모든원소가 0인 30x30 리스트
+
 class FindDust: 
    def __init__(self, a1,a2,a3,a4):
       self.a1 = a1
@@ -19,7 +21,7 @@ class FindDust:
    def getA4(self):
       return self.a4
 
-   def getDest(self):
+   def setMap(self): # a
       Map[0][0] = self.a1
       Map[0][MAX_SIZE-1] = self.a2
       Map[MAX_SIZE-1][0] = self.a3
@@ -30,11 +32,7 @@ class FindDust:
          #print(Map[i+1])
 
       
-
-      max_pos = self.MaxPos()
-      return max_pos
-
-   def MaxPos(self): 
+   def getMaxPos(self): 
       max = 0
       pos = [0,0]
       for i in range(298):
@@ -62,4 +60,32 @@ class FindDust:
       
    def distance(self,src_x,src_y,dest_x,dest_y):
       return math.sqrt(math.pow((dest_x-src_x),2) + math.pow((dest_y-src_y),2))
+
+   def setMiniMap(self):
+      for i in range(0,30):
+         for j in range(0,30):
+            miniMap[i][j] = self.CalAverageValue(i,j)
+      miniMap[0][0] = Map[0][0]
+      miniMap[0][29] = Map[0][299]
+      miniMap[29][0] = Map[299][0]
+      miniMap[29][29] = Map[299][299]
+   
+   def printMap(self):
+      print(Map)
+   
+   def printMiniMap(self):
+      for i in range(30):
+         print(miniMap[i])
       
+   
+   def CalAverageValue(self,x,y):
+      cnt=0
+      sum = 0
+      for i in range(x*10,(x+1)*10):
+         for j in range(y*10,(y+1)*10):
+            if Map[i][j] !=0:
+               cnt = cnt+1
+            sum = sum + Map[i][j]
+
+      return sum/cnt
+         

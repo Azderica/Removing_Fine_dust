@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title>WebOS monitroing</title>
+    <style>
+        html,
+        body,
+        div,
+        span,
+        applet,
+        object,
+        iframe,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        blockquote,
+        pre,
+        a,
+        abbr,
+        acronym,
+        address,
+        big,
+        cite,
+        code,
+        del,
+        dfn,
+        em,
+        img,
+        ins,
+        kbd,
+        q,
+        s,
+        samp,
+        small,
+        strike,
+        strong,
+        sub,
+        sup,
+        tt,
+        var,
+        b,
+        u,
+        i,
+        center,
+        dl,
+        dt,
+        dd,
+        ol,
+        ul,
+        li,
+        fieldset,
+        form,
+        label,
+        legend,
+        table,
+        caption,
+        tbody,
+        tfoot,
+        thead,
+        tr,
+        th,
+        td,
+        article,
+        aside,
+        canvas,
+        details,
+        embed,
+        figure,
+        figcaption,
+        footer,
+        header,
+        hgroup,
+        menu,
+        nav,
+        output,
+        ruby,
+        section,
+        summary,
+        time,
+        mark,
+        audio,
+        video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+
+        body {
+            line-height: 1;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .main_title {
+            text-align: center;
+            font-size: 30px;
+            font-weight: bold;
+            font-family: Arial;
+            line-height: 50px;
+        }
+
+        .main_comment {
+            line-height: 30px;
+        }
+
+        .main_article{
+            display: inline;
+            margin: 2px solid black;
+        }
+
+        .main_area {
+            display: inline;
+        }
+
+        .box_area {
+            display: inline-block;
+            font-size: 15px;
+            width: 15px;
+            height: 15px;
+        }
+
+        .box_blank {
+            display: inline-block;
+            font-size: 10px;
+        }
+    </style>
+    <script>
+        var dust_map = [];
+        for (var i = 0; i < 900; i++) {
+            dust_map[i] = Math.floor(Math.random()*100);
+        }
+        var rc_spot = 456;
+    </script>
+</head>
+
+<body>
+    <div class="main_title"> Dust Map </div>
+    <hr>
+    <div class="main_comment"> - Current State - </div>
+    <hr>
+    <div class="main_article">
+        <div class="main_area">
+            <script>
+                for (var i = 0; i < 900; i++) {
+                    var color_key = dust_map[i] * 2.55;
+                    var color = parseInt(color_key);
+
+                    if (i == 0 || i == 29 || i == 899 || i == 870) {
+                        document.write("<div class='box_area' style='background-color:#0000ff'></div>")
+                    }
+                    else if (rc_spot == i) {
+                        document.write("<div class='box_area' style='background-color:#00ff00'></div>")
+                    }
+                    else {
+                        document.write("<div class='box_area' style='background-color:rgb(255, " + color + ", " + color + ")'></div>")
+                    }
+                    document.write("<div class='box_blank' style='background-color:#ffffff'>&nbsp;</div>")
+                    if ((i + 1) % 30 == 0) {
+                        document.write("<br>");
+                    }
+                }
+            </script>
+        </div>
+    </div>
+    <hr>
+</body>
+
+</html>

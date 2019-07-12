@@ -100,3 +100,11 @@ class FindDust:
                pos[0] = i
                pos[1] = j
       return pos
+
+   def printFile(self):
+      file = open("text.txt","w")
+      for i in range(0,30):
+         file.write(', '.join(miniMap[i]))
+         file.write("\n")
+
+      file.close()

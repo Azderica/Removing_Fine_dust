@@ -1,5 +1,7 @@
 # find_dust_spot.py
 import math
+from websocket import create_connection
+import time
 
 MAX_SIZE = 300
 Map =[[0]*300 for i in range(300)] # 모든원소가 0인 300x300 리스트
@@ -71,12 +73,13 @@ class FindDust:
       miniMap[29][29] = Map[299][299]
    
    def printMap(self):
-      print(Map)
+      for i in range(300):
+         print(Map[i])
    
    def printMiniMap(self):
       for i in range(30):
          print(miniMap[i])
-      
+   
    
    def CalAverageValue(self,x,y):
       cnt=0
@@ -88,4 +91,45 @@ class FindDust:
             sum = sum + Map[i][j]
 
       return sum/cnt
-         
+   
+   def getMiniMapMaxPos(self):
+      max = 0
+      pos = [0,0]
+      for i in range(30):
+         for j in range(30):
+            if miniMap[i][j] >max:
+               max = miniMap[i][j]
+               pos[0] = i
+               pos[1] = j
+      return pos
+
+   def printFile(self):
+      file = open("text.txt","w")
+      for i in range(0,30):
+         file.write(', '.join(miniMap[i]))
+         file.write("\n")
+
+      file.close()
+
+   def getMessage(self):
+      result =""
+      for i in range(30):
+         for j in range(30):
+            if i!=0 or j!=0:
+               result = result +","
+            result = result + str(int(miniMap[i][j]*100))
+      return result
+
+   def sendMap(self):
+      ws = create_connection("ws://15.164.166.134:8000/")
+      while(True) :
+         print("Sending 'Hello, World'...")
+         ws.send(self.getMessage())
+         print("Sent")
+         print("Receiving...")
+         result =  ws.recv()
+         print("Received '%s'" % result)
+         time.sleep(2)
+      ws.close()
+
+     

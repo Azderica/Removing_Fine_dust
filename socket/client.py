@@ -2,10 +2,12 @@ import socket
 import threading
 import time
 
+
 def send(sock):
     while True:
         sendData = input('>>> ')
         sock.send(sendData.encode('utf-8'))
+
 
 def receive(sock):
     while True:
@@ -14,6 +16,7 @@ def receive(sock):
 
 # ip_address = "172.31.31.144"
 # port = 9999
+
 
 my_ip_address = '172.17.0.1'
 my_port = 8150

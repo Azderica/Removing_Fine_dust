@@ -26,7 +26,8 @@ function originIsAllowed(origin) {
   // put logic here to detect whether the specified origin is allowed.
   return true;
 }
- 
+
+
 wsServer.on('request', function(request) {
     if (!originIsAllowed(request.origin)) {
       // Make sure we only accept requests from an allowed origin
@@ -35,11 +36,25 @@ wsServer.on('request', function(request) {
       return;
     }
  
+    var flag =0;
     var connection = request.accept(null, request.origin);
+    for(i=0;i<Client.length;i++){
+        if(Client[i].remoteAddress==connection.remoteAddress){
+            flag = 1;
+            connection = Client[i];
+        }
+    }
+    if(flag==0){
+        Client.push(connection);
+        connection = Client[Client.length-1];
+    }
+    //var connection = request.accept(null, request.origin);
     console.log((new Date()) + ' Connection accepted.');
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
             console.log('Received Message: ' + message.utf8Data+"address : "+ connection.remoteAddress);
+            console.log("Client 수 :"+Client.length);
+            console.log("Client:"+Client);
             connection.sendUTF("서버 지기쥬("+connection.remoteAddress+") :"+message.utf8Data);
         }
 

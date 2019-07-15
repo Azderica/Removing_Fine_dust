@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<title>WebSocket Test Page</title>
+<script>
+ 
+    var log = function(s) {
+        console.log(s);
+        if (document.readyState !== "complete") {
+            log.buffer.push(s);
+        } else {
+            document.getElementById("output").innerHTML += (s + "\n")
+        }
+    }
+    log.buffer = [];
+    // 아래 값은 상황에 맞게 변경할 것
+    url = "ws://15.164.166.134:8000";
+    w = new WebSocket(url);
+ 
+    w.onopen = function() {
+        log("open");
+        w.send("thank you for accepting this Web Socket request");
+    }
+ 
+    w.onmessage = function(e) {
+        console.log(e.data);
+        log(e.data);
+    }
+ 
+    w.onclose = function(e) {
+        log("closed");
+    }
+ 
+    window.onload = function() {
+        log(log.buffer.join("\n"));
+        document.getElementById("sendButton").onclick = function() {
+            console.log(document.getElementById("inputMessage").value);
+            w.send(document.getElementById("inputMessage").value);
+        }
+    }
+</script>
+ 
+<input type="text" id="inputMessage" value="Hello, Web Socket!"><button id="sendButton">Send</button>
+<pre id="output"></pre>

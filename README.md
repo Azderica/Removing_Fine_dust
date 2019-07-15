@@ -17,7 +17,7 @@ Later, the project will be used for webOS contest and IOT contest.
 ## 2. Project Schedule
 > ~ 2019.07.13 : [LG webOS IoT Hackathon](http://enroll.lgsoftindia.com/webos/login.aspx)
 
-> ~ 2019.07.26 : [Wiznet IOT contest](http://marker.wiznet.io)
+> ~ 2019.07.26 : [Wiznet IOT contest](http://maker.wiznet.io)
 
 
 ## 3. project content

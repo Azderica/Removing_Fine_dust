@@ -14,9 +14,9 @@ import time
 import socket
 import threading
 
-# this is for socket 
-my_ip_address = '172.17.0.1'
-my_port = 8400
+# this is for socket
+my_ip_address = '192.168.43.160'
+my_port = 9009
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((my_ip_address, my_port))
 
@@ -30,21 +30,23 @@ args = vars(ap.parse_args())
 
 # define the lower and upper boundaries of the "green"
 # ball in the HSV color space
-redLower = (0, 100, 100)
+redLower = (0, 80, 80)
 redUpper = (10, 255, 255)
-blueLower = (110, 50, 50)
-blueUpper = (130, 255, 255)
+blueLower = (40, 100, 100)
+blueUpper = (80, 255, 255)
 
 # initialize the list of tracked points, the frame counter,
 # and the coordinate deltas
 pts = deque(maxlen=args["buffer"])
 counter = 0
+i_rad = 0
 rad = 0
-i_rad;
 plus = 0
 # (dX, dY) = (0, 0)
 direction = ""
 sendData = ""
+radius = 0
+radius2 = 0
 
 # if a video path was not supplied, grab the reference
 # to the webcam
@@ -56,9 +58,12 @@ else:
 	vs = cv2.VideoCapture(args["video"])
 
 # allow the camera or video file to warm up
+sock.send('camera'.encode('utf-8'))
 time.sleep(2.0)
 
 end = False
+
+
 def send_coor(second=1.0):
 	global end
 	if end:
@@ -67,6 +72,7 @@ def send_coor(second=1.0):
 	sock.send(sendData.encode('utf-8'))
 
 #send_coor(10.0)
+
 
 # keep looping
 while True:
@@ -78,6 +84,7 @@ while True:
 
 	# if we are viewing a video and we did not grab a frame,
 	# then we have reached the end of the video
+
 	if frame is None:
 		break
 
@@ -130,8 +137,8 @@ while True:
 		center2 = (int(M2["m10"] / M2["m00"]), int(M2["m01"] / M2["m00"]))
 
 		# only proceed if the radius meets a minimum size
-		if radius > 8 and radius2 > 8:
-			# draw the circle and centroid on the frsame,
+		if radius > 0.5 and radius2 > 0.5:
+			# draw the circlqe and centroid on the frsame,
 			# then update the list of tracked points
 			cv2.circle(frame, (int(x), int(y)), int(radius),
                             (0, 255, 255), 2)
@@ -142,7 +149,13 @@ while True:
 			pts.appendleft(center)
 			pts.appendleft(center2)
 
-	rad = math.atan2((center2[1]-center[1]), (center2[0]-center[0]))
+	if (not center) or (not center2):
+		center = (190, 190)
+		center2 = (200, 200)
+
+	d_1 = center2[1]-center[1]
+	d_0 = center2[0]-center[0]
+	rad = math.atan2(d_1, d_0)
 
 	cv2.putText(frame, "Blue X: {}, Blue Y: {}".format(center[0], center[1]),
              (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
@@ -157,8 +170,9 @@ while True:
 		plus = 0
 	i_rad = int(rad*10000)
 
-	sendData = (str(center[0]) + "," + str(center[1]) + "," + str(i_rad) + ","+str(plus))
-	#time.sleep(0.5)
+	sendData = (str(center[0]) + "," + str(center[1]) +
+	            "," + str(i_rad) + ","+str(plus))
+	time.sleep(2)
 	sock.send(sendData.encode('utf-8'))
 	#send_coor(10.0)
 

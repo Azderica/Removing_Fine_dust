@@ -60,8 +60,8 @@ wsServer.on('request', function (request) {
             console.log('Received Message: ' + message.utf8Data + "address : " + connection.remoteAddress);
             console.log("Client 수 :" + Client.length);
             console.log("Client:" + Client);
-            console.log("서버에서 보낸 메시지 : "+"서버(" + connection.remoteAddress + ") :" + message.utf8Data);
-            connection.sendUTF("서버(" + connection.remoteAddress + ") :" + message.utf8Data);
+            //console.log("서버에서 보낸 메시지 : "+"서버(" + connection.remoteAddress + ") :" + message.utf8Data);
+            //connection.sendUTF("서버(" + connection.remoteAddress + ") :" + message.utf8Data);
             //Webos_conn.sendUTF("1명훈이 받음?");
             if (Webos_conn!="") {
                // connection.sendUTF("2명훈이 받음?");

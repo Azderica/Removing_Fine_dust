@@ -13,13 +13,13 @@ class Arduino: #아두이노 미세먼지 모듈
    def __init__(self,msg):
       temp = msg.split("\\r\\n',")
       self.a1 = int(temp[0][2:])
-      print(self.a1)
+      #print(self.a1)
       self.a2 = int(temp[1][2:])
-      print(self.a2)
+      #print(self.a2)
       self.a3 = int(temp[2][2:])
-      print(self.a3)
+      #print(self.a3)
       self.a4 = int(temp[3][2:])
-      print(self.a4)
+      #print(self.a4)
 
    def setArduino(self,msg):
       temp = msg.split("\\r\\n',")
@@ -66,10 +66,10 @@ lock = threading.Lock() # syncronized 동기화 진행하는 스레드 생성
 module ={} #아두이노 저장
 
 module["camera"] = Cleaner("100,100,12345")
-module["arduino"] = Arduino("b'22\\r\\n',b'20\\r\\n',b'16\\r\\n',b'18\\r\\n',")
+module["arduino"] = Arduino("b'99\\r\\n',b'20\\r\\n',b'16\\r\\n',b'23\\r\\n',")
 dust = find_dust_spot.FindDust(module["arduino"].getA1(),module["arduino"].getA2(),module["arduino"].getA3(),module["arduino"].getA4())
 ws = create_connection("ws://15.164.166.134:8000/")
-ws.send("연결")
+ws.send("1,1,1,1:200,200")
 # dust = find_dust_spot.FindDust(0 ,0,0,0)
 #cleaner = None
 class UserManager: # 사용자관리 메세지 전송을 담당하는 클래스
@@ -175,8 +175,8 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
                val1 = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),200,200,module["camera"].getRad())*(4000/36)
                distance = dust.getMoveDistance(module["camera"].getX(), module["camera"].getY(), 200, 200)
             
-            if distance > 20:
-               val2 = 1000
+            if distance > 15:
+               val2 = 500
             else :
                val1 = 0
                val2 = 0

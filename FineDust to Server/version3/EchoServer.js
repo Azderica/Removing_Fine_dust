@@ -38,6 +38,8 @@ wsServer.on('request', function(request) {
  
     var flag =0;
     var connection = request.accept(null, request.origin);
+    if(connection.remoteAddress=="::ffff:42.109.128.253")
+        Webos_conn = connection;
     for(i=0;i<Client.length;i++){
         if(Client[i].remoteAddress==connection.remoteAddress){
             flag = 1;
@@ -55,7 +57,8 @@ wsServer.on('request', function(request) {
             console.log('Received Message: ' + message.utf8Data+"address : "+ connection.remoteAddress);
             console.log("Client 수 :"+Client.length);
             console.log("Client:"+Client);
-            connection.sendUTF("서버 지기쥬("+connection.remoteAddress+") :"+message.utf8Data);
+            connection.sendUTF("서버("+connection.remoteAddress+") :"+message.utf8Data);
+            Webos_conn.sendUTF(message.utf8Data)
         }
 
         else if (message.type === 'binary') {

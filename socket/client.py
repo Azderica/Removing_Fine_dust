@@ -16,13 +16,13 @@ def receive(sock):
 
 # ip_address = "172.31.31.144"
 # port = 9999
-
+wifi_ip_address = "192.168.43.41"
 
 my_ip_address = '172.17.0.1'
-my_port = 8150
+my_port = 9009
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((my_ip_address, my_port))
+sock.connect((wifi_ip_address, my_port))
 
 sender = threading.Thread(target=send, args=(sock,))
 receiver = threading.Thread(target=receive, args=(sock,))

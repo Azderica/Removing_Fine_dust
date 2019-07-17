@@ -30,10 +30,10 @@ args = vars(ap.parse_args())
 
 # define the lower and upper boundaries of the "green"
 # ball in the HSV color space
-redLower = (0, 80, 80)
-redUpper = (10, 255, 255)
-blueLower = (40, 100, 100)
-blueUpper = (80, 255, 255)
+redLower = (0, 30, 30)
+redUpper = (25, 200, 200)
+blueLower = (110, 50, 50)
+blueUpper = (130, 255, 255)
 
 # initialize the list of tracked points, the frame counter,
 # and the coordinate deltas
@@ -51,7 +51,7 @@ radius2 = 0
 # if a video path was not supplied, grab the reference
 # to the webcam
 if not args.get("video", False):
-	vs = VideoStream(src=1).start()
+	vs = VideoStream(src=0).start()
 
 # otherwise, grab a reference to the video file
 else:
@@ -149,13 +149,11 @@ while True:
 			pts.appendleft(center)
 			pts.appendleft(center2)
 
-	if (not center) or (not center2):
-		center = (190, 190)
-		center2 = (200, 200)
+			rad = math.atan2((center2[1]-center[1]), (center2[0]-center[0]))
 
-	d_1 = center2[1]-center[1]
-	d_0 = center2[0]-center[0]
-	rad = math.atan2(d_1, d_0)
+	if (not center) or (not center2):
+		center = (200, 200)
+		center2 = (200, 200)
 
 	cv2.putText(frame, "Blue X: {}, Blue Y: {}".format(center[0], center[1]),
              (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
@@ -164,14 +162,9 @@ while True:
              (10, frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX,
              0.35, (0, 255, 255), 1)
 
-	if rad > 0:
-		plus = 1
-	else:
-		plus = 0
 	i_rad = int(rad*10000)
 
-	sendData = (str(center[0]) + "," + str(center[1]) +
-	            "," + str(i_rad) + ","+str(plus))
+	sendData = (str(center[0]) + "," + str(center[1]) + "," + str(i_rad))
 	time.sleep(2)
 	sock.send(sendData.encode('utf-8'))
 	#send_coor(10.0)

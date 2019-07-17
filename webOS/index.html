@@ -1,9 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html>
 
 <head>
-    <meta charset="utf-8">
-    <title>WebOS monitroing</title>
     <style>
         html,
         body,
@@ -98,7 +96,8 @@
             line-height: 1;
             vertical-align: middle;
             text-align: center;
-            color: white;
+            color: black;
+            background-color: #F79E8A;
         }
 
         .main_title {
@@ -117,6 +116,11 @@
             display: inline-block;
             align-content: center;
             align-items: center;
+
+            width: 400px;
+            height: 400px;
+            border: 1px solid #F16570;
+            background-color: white;
         }
 
         .main_area {
@@ -134,62 +138,477 @@
             display: inline-block;
             font-size: 0px;
         }
+
+        .col_line {
+            display: block;
+            height: 80px;
+        }
+
+        .col_blank {
+            display: block;
+            height: 240px;
+        }
+
+        .low_line {
+            display: inline-block;
+            width: 19%;
+            height: 100%;
+            align-content: center;
+            align-items: center;
+            text-align: center;
+            line-height: 30px;
+            vertical-align: top;
+            border: 0.5px solid #F16570;
+        }
+
+        .low_blank {
+            display: inline-block;
+            width: 58%;
+            height: 100%;
+        }
+
+        .main_message {
+            line-height: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        #cameraVideo {
+            border: 3px solid #F16570;
+            width: 400px;
+            height: 300px;
+            object-fit: fill;
+            margin-right: 20px;
+        }
+
+        .playBtn {
+            font-size: 24px;
+            text-align: center;
+            font-family: cursive;
+            font-weight: bold;
+            width: 200px;
+        }
+
+        #testMode {
+            width: 400px;
+            height: 35px;
+            font-size: 24px;
+        }
+
+        #statusText {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        #mySpan1 {
+            border: 3px solid blue;
+            width: 300px;
+            height: 300px;
+            margin-left: 300px;
+        }
+
+        #mySpan2 {
+            border: 3px solid blue;
+            width: 300px;
+            height: 300px;
+            margin-left: 100px;
+        }
+
+        #mySpan3 {
+            border: 3px solid blue;
+            width: 300px;
+            height: 300px;
+            margin-left: 100px;
+        }
+
+        .main_video {
+            display: inline-block;
+            align-content: center;
+            align-items: center;
+            text-align: center;
+        }
     </style>
-    <script>
+    <script charset="utf-8" src="webOSjs-0.1.0/webOS.js"></script>
+    <script type="text/javascript">
+        var isPlayingSHM = false;
+        var eventListenerAdded = false;
+        var options = {};
+        var camera_id = "camera1";
+        var handle_;
+        var key = 7010;
+        var uri1 = "camera://com.webos.service.camera2/";
+        var CameraOption;
+        options.mediaTransportType = "CAMERA";
+        options.width = 840;
+        options.height = 630;
+        options.frameRate = 30;
+        options.format = "JPEG";
+        options.streamType = "JPEG";
+        options.memType = "shmem";
+        options.memSrc = "7010";
+        var refresh = true;
+
+        var imageArray = new Array();
+        imageArray[0] = "./Qface.jpg";
+        imageArray[1] = "./Qface.jpg";
+        imageArray[2] = "./Qface.jpg";
+
+        function playWithCamSHM() {
+            console.log("playWithCamSHM called");
+            document.getElementById("demo1").innerHTML = "getCameraList";
+            //Calling the Camera service getCameraList API
+            document.getElementById("check").innerHTML = "playwithCamSHM()";
+            var request = webOS.service.request("luna://com.webos.service.camera2", {
+                method: "getCameraList",
+                parameters: {},
+                onFailure: function (inError) {
+                    console.log(JSON.stringify(inError));
+                    document.getElementById("demo1").innerHTML = "Error " + JSON.stringify(inError);
+                },
+                onSuccess: function (inResponse) {
+                    console.log(JSON.stringify(inResponse));
+                    document.getElementById("demo1").innerHTML = "CameraList:" + JSON.stringify(inResponse);
+                    // Sucess with return with camera id.
+
+                    if (inResponse["deviceList"].length <= 0) {
+                        document.getElementById("demo1").innerHTML = "Error : Device list is Empty!!!";
+                    } else {
+                        document.getElementById("check").innerHTML = "getList";
+                        camera_id = inResponse["deviceList"][0].id;
+                        //Callback function to call the camera service open API
+                        getOpen();
+                    }
+                }
+            });
+        }
+
+
+        function getOpen() {
+            document.getElementById("demo1").innerHTML = "getOpen";
+            //Calling the Camera service open API
+            var request = webOS.service.request("luna://com.webos.service.camera2", {
+                method: "open",
+                parameters: {
+                    "id": camera_id
+                },
+                onFailure: function (inError) {
+                    console.log(JSON.stringify(inError));
+                    document.getElementById("demo1").innerHTML = "error " + JSON.stringify(inError);
+                },
+                onComplete: function (inResponse) {
+                    console.log(JSON.stringify(inResponse["handle"]));
+                    document.getElementById("demo1").innerHTML = "camera1 service open success: " + JSON.stringify(inResponse);
+                    //On sucessful return extarcting the value of handle
+                    handle_ = inResponse["handle"];
+                    options.handle_ = inResponse["handle"];
+                    //Callback for setFormat Camera Service API
+                    getSetFormat();
+
+                }
+            });
+        }
+
+        function getSetFormat() {
+            document.getElementById("demo1").innerHTML = "getSetFormat";
+            //Calling the Camera service setFormat API
+            var request = webOS.service.request("luna://com.webos.service.camera2", {
+                method: "setFormat",
+                parameters: {
+                    "handle": options.handle_,
+                    "params": {
+                        "width": 640,
+                        "height": 480,
+                        "format": "JPEG",
+                        "fps": 30
+                    }
+                },
+                onFailure: function (inError) {
+                    console.log(JSON.stringify(inError));
+                    document.getElementById("demo1").innerHTML = "error " + JSON.stringify(inError);
+                },
+                onComplete: function (inResponse) {
+                    console.log(JSON.stringify(inResponse));
+                    document.getElementById("demo1").innerHTML = "success " + JSON.stringify(inResponse);
+                    //Callback for start Preview APi of Camera service
+                    startPreview();
+                }
+            });
+        }
+        function startPreview() {
+            document.getElementById("demo1").innerHTML = "startPreview";
+            //Calling the Camera service startPreview  API
+            var request = webOS.service.request("luna://com.webos.service.camera2", {
+                method: "startPreview",
+                parameters: { "handle": options.handle_, "params": { "type": "sharedmemory", "source": "0" } },
+                onFailure: function (inError) {
+                    console.log(JSON.stringify(inError));
+                    document.getElementById("check").innerHTML = "startPreview_Fail";
+                },
+                onComplete: function (inResponse) {
+                    console.log(JSON.stringify(inResponse));
+                    document.getElementById("check").innerHTML = "startPreview_success";
+                    options.memsrc = inResponse["key"]; //assigning shared memory key
+                    // Callback for calling load function for loading ca,era pipeline
+                    playWithCamSrc();
+                }
+            });
+        }
+
+        function stopPreview() {
+            document.getElementById("demo1").innerHTML = "stopPreview";
+            var request = webOS.service.request("luna://com.webos.service.camera2", {
+                method: "stopPreview",
+                parameters: {
+                    "handle": handle_
+                },
+                onFailure: function (inError) {
+                    console.log(JSON.stringify(inError));
+                    document.getElementById("demo1").innerHTML = "error " + JSON.stringify(inError);
+                },
+                onComplete: function (inResponse) {
+                    console.log(JSON.stringify(inResponse));
+                    document.getElementById("demo1").innerHTML = "success " + JSON.stringify(inResponse);
+                    close();
+                }
+            });
+        }
+
+        function close() {
+            document.getElementById("demo1").innerHTML = "close";
+            var request = webOS.service.request("luna://com.webos.service.camera2", {
+                method: "close",
+                parameters: {
+                    "handle": handle_
+                },
+                onFailure: function (inError) {
+                    console.log(JSON.stringify(inError));
+                    document.getElementById("demo1").innerHTML = "error " + JSON.stringify(inError);
+                },
+                onComplete: function (inResponse) {
+                    console.log(JSON.stringify(inResponse));
+                    document.getElementById("demo1").innerHTML = "success " + JSON.stringify(inResponse);
+                }
+            });
+        }
+
+        function playWithCamSrc() {
+            console.log("playWithCamSrc called");
+            document.getElementById("demo1").innerHTML = "play wind CamSrc"
+            var cameraOptions = escape(JSON.stringify(options));
+
+            var sourceElt = document.getElementById("cameraSource");
+            sourceElt.setAttribute('src', uri1);
+            sourceElt.setAttribute('type', 'service/webos-camera;cameraOption=' + cameraOptions);
+
+            document.getElementById("cameraVideo").load();
+        }
+
+        function updateVideoElement() {
+            var cameraVideo = document.getElementById("cameraVideo");
+            if (cameraVideo) {
+                if (isPlayingSHM)
+                    return;
+                console.log("updateVideoElement:: " + cameraVideo);
+            } else {
+                console.log("updateVideoElement:: No oldVideo element present");
+            }
+
+            var sourceElt = document.createElement("source");
+            sourceElt.setAttribute("src", " ");
+            document.getElementById("cameraVideo").load();
+
+            /*if (!eventListenerAdded) {
+                eventListenerAdded = true;
+                cameraVideo.addEventListener("updatecamerastate", function (e) {
+                    var obj = JSON.parse(e.detail);
+   
+                    console.log("detail msg :: " + obj.mediaId);
+                    
+                    media_id = obj.mediaId;
+                    console.log("media_id: " + media_id);
+                }, false);
+            
+            }*/
+        }
+
+        function init() {
+            //updateVideoElement();
+            var selectElt = document.getElementById("testMode");
+            var strUser = "camshm";
+            if (strUser == "camsrc") {
+                if (isPlayingSHM) {
+                    document.getElementById("demo1").innerHTML = "";
+                    //stopPreview();
+                    isPlayingSHM = false;
+                }
+                options.memType = "device";
+                options.memSrc = "/dev/video0";
+                playWithCamSrc();
+            } else /*if (strUser == "camshm")*/ {
+                options.memType = "shmem";
+                options.memSrc = "7010";
+                playWithCamSHM();
+                isPlayingSHM = true;
+            }
+        }
+
+        var receive_pre_data = "30,40,30,30:200,200"
+        var receive_data = "30,40,30,30:200,200"    // 받을 데이터 양식
+        var log = function (s) {
+            console.log(s);
+            if (document.readyState !== "complete") {
+                log.buffer.push(s);
+            } else {
+                document.getElementById("output").innerHTML += (s + "\n")
+                receive_data = s
+            }
+        }
+        log.buffer = [];
+        url = "ws://15.164.166.134:8000";
+        w = new WebSocket(url);
+
+        w.onopen = function () {
+            log("open");
+            w.send("thank you for accepting this Web Socket");
+        }
+
+        w.onmessage = function (e) {
+            console.log(e.data);
+            log(e.data);
+        }
+
+        w.onclose = function (e) {
+            log("closed");
+        }
+
         window.setInterval("draw_dust()", 500);
         function draw_dust() {
             var current_loc = window.location;
-            var cameraMap = document.getElementById("cameraMap");
-            var string_map = ""
-            var dust_map = [];
-            var rc_spot = 700;
+            var corner1 = document.getElementById("corner1");
+            var corner2 = document.getElementById("corner2");
+            var corner3 = document.getElementById("corner3");
+            var corner4 = document.getElementById("corner4");
 
-            // 100에서 0사이의 값
-            // var map_str = "15,100,50,15,15,15,5,30,15,15,15,15,10,100,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15"
-            // dust_map = map_str.split(',')
+            var string_map = "";
+            if (receive_data == receive_pre_data);
+            else {
+                var receive_datas = receive_data.split(":");
+                var dust_info = receive_datas[0].split(",");
+                var rc_info = receive_datas[1].split(",");
 
-            for (var i = 0; i < 900; i++) {
-                dust_map[i] = Math.floor(Math.random() * 100);
+                var dust_spot = 0;
+                var dust_data = dust_info[0];
+                for (var i = 1; i < dust_info.length; i++) {
+                    if (dust_data < dust_info[i]) {
+                        dust_spot = i;
+                        dust_data = dust_info[i];
+                    }
+                }
+
+                corner1.style.backgroundColor = "white";
+                corner1.style.color = "black";
+                if (dust_info[0] > 50) {
+                    corner1.style.backgroundColor = "#ED6414";
+                    if (dust_info[0] > 80) {
+                        corner1.style.backgroundColor = "#F16570";
+                        corner1.style.color = "white";
+                    }
+                }
+                corner2.style.backgroundColor = "white";
+                corner2.style.color = "black";
+                if (dust_info[1] > 50) {
+                    corner2.style.backgroundColor = "#ED6414";
+                    if (dust_info[1] > 80) {
+                        corner2.style.backgroundColor = "#F16570";
+                        corner2.style.color = "white";
+                    }
+                }
+                corner3.style.backgroundColor = "white";
+                corner3.style.color = "black";
+                if (dust_info[2] > 50) {
+                    corner3.style.backgroundColor = "#ED6414";
+                    if (dust_info[2] > 80) {
+                        corner3.style.backgroundColor = "#F16570";
+                        corner3.style.color = "white";
+                    }
+                }
+                corner4.style.backgroundColor = "white";
+                corner4.style.color = "black";
+                if (dust_info[3] > 50) {
+                    corner4.style.backgroundColor = "#ED6414";
+                    if (dust_info[3] > 80) {
+                        corner4.style.backgroundColor = "#F16570";
+                        corner4.style.color = "white";
+                    }
+                }
+
+                corner1.innerHTML = "corner1 <br>" + dust_info[0];
+                corner2.innerHTML = "corner2 <br>" + dust_info[1];
+                corner3.innerHTML = "corner3 <br>" + dust_info[2];
+                corner4.innerHTML = "corner4 <br>" + dust_info[3];
+
+                var status = document.getElementById("ms_status");
+                var spot = document.getElementById("ms_spot");
+
+                status.innerHTML = "RC car(Air purifier) : going to " + (dust_spot + 1) + "...";
+                spot.innerHTML = "Destination : corner" + (dust_spot + 1);
+
+                receive_pre_data = receive_data
             }
-
-            for (var i = 0; i < 900; i++) {
-                var color_key = 255 - dust_map[i] * 2.55;
-                var color = parseInt(color_key);
-
-                if (i == 0 || i == 29 || i == 899 || i == 870) {
-                    string_map += "<div class='box_area' style='background-color:#0000ff'></div>";
-                }
-                else if (rc_spot == i) {
-                    string_map += "<div class='box_area' style='background-color:#00ff00'></div>";
-                }
-                else {
-                    string_map += "<div class='box_area' style='background-color:rgb(255, " + color + ", " + color + ")'></div>";
-                }
-                //document.write("<div class='box_blank' style='background-color:#ffffff'>&nbsp;</div>")
-                if ((i + 1) % 30 == 0) {
-                    string_map += "<br>";
-                }
-            }
-            cameraMap.innerHTML = string_map;
-            //setTimeout("location.reload()", 500);
-
         }
     </script>
 </head>
 
-<body>
+<body onload="init();">
+    <div style="display: block; height: 0px;"></div>
     <div class="main_title"> Dust Map </div>
     <hr>
-    <div class="main_comment"> - Current State - </div>
-    <hr>
-    <div class="main_article">\
-        <div class="main_area" id="cameraMap">
-            &nbsp;
+    <div align="center" style="display:none">
+        <select id="testMode">
+            <option value="camshm"> Test LG Camera SHM </option>
+            <option value="camsrc"> Test LG Camera SRC </option>
+        </select>
+    </div>
+    <br>
+    <div class="main_text">
+        <div align="center" class="main_video">
+            <div id="statusText" align="center" style="display:inline-block">
+                <p id="demo1" style="color:black"> </p>
+            </div>
+            <p align="center" id="check" style="color: black; display:inline-block">basic</p>
+            <br>
+            <video id="cameraVideo">
+                <source id="cameraSource" src=uri1 type="service/webos-camera">
+            </video>
+        </div>
+        <div style="display: inline-block; width: 100px"></div>
+        <div class="main_article">
+            <div class="col_line">
+                <span class="low_line" id="corner1">corner1</span>
+                <span class="low_blank"></span>
+                <span class="low_line" id="corner4">corner4</span>
+            </div>
+            <div class="col_blank"></div>
+            <div class="col_line">
+                <span class="low_line" id="corner2">corner2</span>
+                <span class="low_blank"></span>
+                <span class="low_line" id="corner3">corner3</span>
+            </div>
         </div>
     </div>
-    <script>
-    </script>
     <hr>
+    <div class="main_message">
+        <div id="ms_status">RC car(Air purifier) : </div>
+        <div id="ms_spot">Destination : </div>
+    </div>
+    <hr>
+    <div id="output"> Server Data<br></div>
 </body>
 
 </html>

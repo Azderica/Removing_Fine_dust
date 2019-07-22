@@ -96,7 +96,15 @@ class FindDust:
         return self.distance(src_x,src_y,dest_x,dest_y)*79/300
 
    def getMoveRad(self, src_x,src_y, dest_x,dest_y,src_rad):
-      return math.atan2((dest_y-src_y),(dest_x-src_x))-src_rad*0.00001
+      theta2 = math.atan2((src_y-dest_y),(dest_x-src_x))
+      theta1 = src_rad*0.0001
+      if theta2 < 0:
+         theta2 = 2 * math.pi + theta2
+      if theta1 < 0:
+         theta1 = 2 * math.pi + theta1
+      print(str(theta1) + ", " + str(theta2))
+      data = theta2 - theta1
+      return data
 
    def getDest(self, a1,a2,a3,a4):
       arr = [a1,a2,a3,a4]

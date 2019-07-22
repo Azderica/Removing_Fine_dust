@@ -38,7 +38,7 @@ wsServer.on('request', function (request) {
 
     var flag = 0;
     var connection = request.accept(null, request.origin);
-    if (connection.remoteAddress == "::ffff:1.39.158.209") {
+    if (connection.remoteAddress == "::ffff:42.109.130.229") {
         Webos_conn = connection;
         console.log("webos 서버 connected");
         //Webos_conn.sendUTF("명훈이 받음?");
@@ -62,10 +62,10 @@ wsServer.on('request', function (request) {
             console.log("Client:" + Client);
             //console.log("서버에서 보낸 메시지 : "+"서버(" + connection.remoteAddress + ") :" + message.utf8Data);
             //connection.sendUTF("서버(" + connection.remoteAddress + ") :" + message.utf8Data);
-            //Webos_conn.sendUTF("1명훈이 받음?");
+            //connection.sendUTF(message.utf8Data);
             if (Webos_conn!="") {
                // connection.sendUTF("2명훈이 받음?");
-               console.log("webos로 전송");
+               console.log("webos로 전송 : "+ message.utf8Data);
                 Webos_conn.sendUTF(message.utf8Data);
             }
             //Webos_conn.sendUTF(message.utf8Data)

@@ -4,7 +4,7 @@ import socketserver
 import socket
 import threading
 import time
-from parse import *
+
 
 HOST = ''
 PORT = 9009
@@ -129,9 +129,9 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
                #self.request.close()
                #break
             print("전송")
-            self.userman.sendMessageToUser(username, "0,5000")
+            self.userman.sendMessageToUser(username, "0,400")
             #self.userman.sendMessageToAll("50,50")
-            time.sleep(2)
+            time.sleep(5)
             
                
       else:

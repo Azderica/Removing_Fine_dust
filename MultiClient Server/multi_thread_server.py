@@ -6,6 +6,8 @@ import threading
 import time
 import find_dust_spot
 from websocket import create_connection
+import random
+
 HOST = ''
 PORT = 9009
 
@@ -24,13 +26,18 @@ class Arduino: #아두이노 미세먼지 모듈
    def setArduino(self,msg):
       temp = msg.split("\\r\\n',")
       self.a1 = int(temp[0][2:])
-      #print(self.a1)
-      self.a2 = int(temp[1][2:])
-      #print(self.a2)
-      self.a3 = int(temp[2][2:])
-      #print(self.a3)
-      self.a4 = int(temp[3][2:])
-      #print(self.a4)
+      print(self.a1)
+      temp = temp[1]
+      temp = temp.split(",")
+      self.a2 = int(temp[0])
+      #self.a2 = random.randint(17,23)
+      print(self.a2)
+      self.a3 = int(temp[1])
+      #self.a3 = random.randint(17,23)
+      print(self.a3)
+      self.a4 = int(temp[2])
+      #self.a4 = random.randint(17,23)
+      print(self.a4)
 
    def getA1(self):
       return self.a1
@@ -66,10 +73,10 @@ lock = threading.Lock() # syncronized 동기화 진행하는 스레드 생성
 module ={} #아두이노 저장
 
 module["camera"] = Cleaner("100,100,12345")
-module["arduino"] = Arduino("b'99\\r\\n',b'20\\r\\n',b'16\\r\\n',b'23\\r\\n',")
+module["arduino"] = Arduino("b'40\\r\\n',b'20\\r\\n',b'30\\r\\n',b'99\\r\\n',")
 dust = find_dust_spot.FindDust(module["arduino"].getA1(),module["arduino"].getA2(),module["arduino"].getA3(),module["arduino"].getA4())
 ws = create_connection("ws://15.164.166.134:8000/")
-ws.send("1,1,1,1:200,200")
+ws.send("1,2,1,2:200,200")
 # dust = find_dust_spot.FindDust(0 ,0,0,0)
 #cleaner = None
 class UserManager: # 사용자관리 메세지 전송을 담당하는 클래스
@@ -154,29 +161,44 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
          while True:
             
             dest = dust.getDest(module["arduino"].getA1(),module["arduino"].getA2(),module["arduino"].getA3(),module["arduino"].getA4()) 
-            #print("maxPos:"+str(pos))
+            
             #dust.sendMap()
            
-            print(module["camera"])
+            #print(module["camera"])
    
             if dest == 1:
-               val1 = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),50,350,module["camera"].getRad())*(4000/36)
+               rad = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),50,350,module["camera"].getRad())
                distance = dust.getMoveDistance(module["camera"].getX(), module["camera"].getY(), 50, 350)
+               print("목적지"+str(dest)+":50,350")
             elif dest == 2:
-               val1 = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),50,50,module["camera"].getRad())*(4000/36)
+               rad = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),50,50,module["camera"].getRad())
                distance = dust.getMoveDistance(module["camera"].getX(), module["camera"].getY(), 50, 50)
+               print("목적지"+str(dest)+":50,50")
             elif dest == 3:
-               val1 = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),350,50,module["camera"].getRad())*(4000/36)
-               distance = dust.getMoveDistance(module["camera"].getX(), module["c           amera"].getY(), 350, 50)
+               rad = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),350,50,module["camera"].getRad())
+               distance = dust.getMoveDistance(module["camera"].getX(), module["camera"].getY(), 350, 50)
+               print("목적지"+str(dest)+":350,50")
             elif dest == 4:
-               val1 = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),350,350,module["camera"].getRad())*(4000/36)
+               rad = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),350,350,module["camera"].getRad())
                distance = dust.getMoveDistance(module["camera"].getX(), module["camera"].getY(), 350, 350)
+               print("목적지"+str(dest)+":350,350")
             else:
-               val1 = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),200,200,module["camera"].getRad())*(4000/36)
+               rad = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),200,200,module["camera"].getRad())
                distance = dust.getMoveDistance(module["camera"].getX(), module["camera"].getY(), 200, 200)
-            
+               print("목적지"+str(dest)+":200,200")
+   
+            print("getmoverad : "+ str(rad))
             if distance > 15:
-               val2 = 500
+               if rad > 0.5:
+                  val1 = 150 
+                  val2 = 0
+               
+               elif rad < -0.5:
+                  val1 = -150
+                  val2 = 0
+               else :
+                  val1 = 0
+                  val2 = 400
             else :
                val1 = 0
                val2 = 0
@@ -186,13 +208,15 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
             self.userman.sendMessageToUser(username, str(int(val1))+","+str(val2))
             #print("sending data to aws")
             time.sleep(1)
-            dust_msg = dust.getMessage() +":"+str(module["camera"].getX())+","+str(module["camera"].getY()) 
-            print("sending data to aws")
+            #dust_msg = dust.getMessage() +":"+"0,0"
+            dust_msg = str(module["arduino"].getA1())+","+str(module["arduino"].getA2())+","+str(module["arduino"].getA3())+","+str(module["arduino"].getA4())
+            dust_msg = dust_msg +":"+str(module["camera"].getX())+","+str(module["camera"].getY()) 
+            print("sending data to aws : "+ dust_msg)
             ws.send(dust_msg)
             print("전송완료")
             #self.userman.sendMessageToUser(username,"1000,"+str(val2))
             #self.userman.sendMessageToAll("50,50")
-            time.sleep(4)
+            time.sleep(5)
             
                
       else:

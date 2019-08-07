@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<!-- saved from url=(0041)file:///C:/Users/mh978/Desktop/index.html -->
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html,
+        body,
+        div,
+        span,
+        applet,
+        object,
+        iframe,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        blockquote,
+        pre,
+        a,
+        abbr,
+        acronym,
+        address,
+        big,
+        cite,
+        code,
+        del,
+        dfn,
+        em,
+        img,
+        ins,
+        kbd,
+        q,
+        s,
+        samp,
+        small,
+        strike,
+        strong,
+        sub,
+        sup,
+        tt,
+        var,
+        b,
+        u,
+        i,
+        center,
+        dl,
+        dt,
+        dd,
+        ol,
+        ul,
+        li,
+        fieldset,
+        form,
+        label,
+        legend,
+        table,
+        caption,
+        tbody,
+        tfoot,
+        thead,
+        tr,
+        th,
+        td,
+        article,
+        aside,
+        canvas,
+        details,
+        embed,
+        figure,
+        figcaption,
+        footer,
+        header,
+        hgroup,
+        menu,
+        nav,
+        output,
+        ruby,
+        section,
+        summary,
+        time,
+        mark,
+        audio,
+        video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+
+        html {
+            -webkit-text-size-adjust: none;
+        }
+
+        body {
+            text-align: center;
+        }
+
+        .blank_top {
+            height: 0.2em;
+        }
+
+        .blank_main {
+            display: inline-block;
+        }
+
+        .blank_side {
+            display: inline;
+        }
+
+        .main_article {
+            display: inline-block;
+            text-align: center;
+
+            border: 2em solid white;
+        }
+
+        .main_title {
+            border: 0;
+            outline: 0;
+
+            background-color: white;
+            color: #03c75a;
+
+            font-family: Century Gothic;
+            font-size: 2.2em;
+            font-weight: bold;
+
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 2.2em;
+        }
+
+        .main_1 {
+            border: 0.1em solid #03c75a;
+            border-radius: 0.5em;
+
+            width: 50vw;
+            height: 25vw;
+        }
+
+        .main_1_dust {
+            font-family: Century Gothic;
+            font-size: 1.5em;
+            line-height: 1.8em;
+            background-color: #03c75a;
+            color: white;
+            border-radius: 0.2em;
+        }
+
+        .main_1_graph {
+            display: inline-block;
+            width: 45vw;
+            padding: 0.3em;
+            background: #ccc;
+            border-radius: 1em;
+        }
+
+        .main_1_status {
+            color: #b5b5b5;
+            line-height: 2em;
+        }
+
+        .main_1_status2 {
+            font-family: Century Gothic;
+            font-size: 1.3em;
+            line-height: 1.5em;
+        }
+
+        .main_2 {
+            border: 0.1em solid #03c75a;
+            border-radius: 0.5em;
+
+            width: 50vw;
+            height: 50vw;
+        }
+
+        .main_2_rc {
+            font-family: Century Gothic;
+            font-size: 1.5em;
+            line-height: 1.8em;
+            background-color: #03c75a;
+            color: white;
+            border-radius: 0.2em;
+        }
+
+        .main_2_box {
+            display: inline-block;
+            border: 0.1em solid #caffe2;
+        }
+
+        .col_line {
+            display: block;
+            width: 18em;
+            height: 3em;
+        }
+
+        .col_blank {
+            height: 12em;
+        }
+
+        .low_line {
+            display: inline-block;
+            width: 19%;
+            height: 100%;
+            align-content: center;
+            align-items: center;
+            text-align: center;
+            vertical-align: top;
+            border: 0.1em solid #caffe2;
+
+            font-family: Century Gothic;
+            font-size: 0.8em;
+            line-height: 1.6em;
+        }
+
+        .low_blank {
+            display: inline-block;
+            width: 10em;
+        }
+
+        .main_2_status {
+            font-family: Century Gothic;
+            font-size: 1.3em;
+            line-height: 1.5em;
+
+        }
+
+        .blank_bot {
+            height: 1em;
+        }
+    </style>
+    <script>
+        /****************************************************************/
+        /*                         Receive data                         */
+        /****************************************************************/
+        var receive_pre_data = "30,40,30,30:200,200:50"
+        var receive_data = "30,90,30,40:200,200:80"    // 받을 데이터 양식
+        var log = function (s) {
+            console.log(s);
+            if (document.readyState !== "complete") {
+                log.buffer.push(s);
+            } else {
+                document.getElementById("output").innerHTML += (s + "\n")
+                receive_data = s
+            }
+        }
+        log.buffer = [];
+        url = "ws://15.164.166.134:8000";
+        w = new WebSocket(url);
+        w.onopen = function () {
+            log("open");
+            w.send("thank you for accepting this Web Socket");
+        }
+        w.onmessage = function (e) {
+            console.log(e.data);
+            log(e.data);
+        }
+        w.onclose = function (e) {
+            log("closed");
+        }
+        /****************************************************************/
+
+        /****************************************************************/
+        /*                            Draw data                         */
+        /****************************************************************/
+        window.setInterval("draw_dust()", 500);
+        function draw_dust() {
+            var _current_loc = window.location;
+            
+            var _dust_percet = document.getElementById("main1_graph");
+            var _dust_out = document.getElementById("main1_out");
+            var _dust_in = document.getElementById("main1_in");
+            var _dust_state1 = document.getElementById("main1_state");
+
+            var _corner1 = document.getElementById("corner1");
+            var _corner2 = document.getElementById("corner2");
+            var _corner3 = document.getElementById("corner3");
+            var _corner4 = document.getElementById("corner4");
+            var _destination = document.getElementById("destination")
+            var string_map = "";
+            
+            if (receive_data == receive_pre_data);
+            else {
+                var receive_datas = receive_data.split(":");
+                var info_dust = receive_datas[0].split(",");    // INSIDE DUST INFO through Sensor
+                var info_rc = receive_datas[1].split(",");      // RC car spot
+                var info_out_dust = receive_datas[2].split(",");// OUTSIDE DUST INFO through API
+                var info_in_dust = (parseInt(info_dust[0]) + parseInt(info_dust[1]) + parseInt(info_dust[2]) + parseInt(info_dust[3])) / 4;
+                
+                var dust_spot = 0;
+                var dust_data = info_dust[0];
+                for (var i = 1; i < info_dust.length; i++) {
+                    if (dust_data < info_dust[i]) {
+                        dust_spot = i;
+                        dust_data = info_dust[i];
+                    }
+                }
+                dust_spot = dust_spot + 1;
+                // dust_spot is highest_spot
+                // dust_data is highest_data
+
+                /****************************************************************/
+                /*                              BOX 1                           */
+                /****************************************************************/
+                _dust_percet.innerHTML = info_out_dust + "%";
+                _dust_percet.style.width = (45*parseInt(info_out_dust)/100) + "vw";
+                if(info_out_dust > 50){
+                    _dust_percet.style.backgroundColor = "#ED6414";
+                    if(info_out_dust > 80){
+                        _dust_percet.style.backgroundColor = "#F16570";
+                        _dust_percet.style.color = "white";
+                    }
+                }
+                _dust_out.innerHTML = "OUTSIDE status : " + info_out_dust;
+                if(info_out_dust > 50){
+                    _dust_out.style.color = "#ED6414";
+                    if(info_out_dust > 80){
+                        _dust_out.style.color = "white";
+                    }
+                }
+                _dust_in.innerHTML = "INSIDE status : " + info_in_dust;
+                if(info_in_dust > 50){
+                    _dust_in.style.color = "#ED6414";
+                    if(info_in_dust > 80){
+                        _dust_in.style.color = "white";
+                    }
+                }
+                if(info_out_dust>=info_in_dust){
+                    _dust_state1.innerHTML = "Close the window";
+                }
+                else{
+                    _dust_state1.innerHTML = "Open the window";
+                }
+                /****************************************************************/
+
+                /****************************************************************/
+                /*                              BOX 2                           */
+                /****************************************************************/
+                _corner1.style.backgroundColor = "white";
+                _corner1.style.color = "black";
+                if (info_dust[0] > 50) {
+                    _corner1.style.backgroundColor = "#ED6414";
+                    if (info_dust[0] > 80) {
+                        _corner1.style.backgroundColor = "#F16570";
+                        _corner1.style.color = "white";
+                    }
+                }
+                _corner2.style.backgroundColor = "white";
+                _corner2.style.color = "black";
+                if (info_dust[1] > 50) {
+                    _corner2.style.backgroundColor = "#ED6414";
+                    if (info_dust[1] > 80) {
+                        _corner2.style.backgroundColor = "#F16570";
+                        _corner2.style.color = "white";
+                    }
+                }
+                _corner3.style.backgroundColor = "white";
+                _corner3.style.color = "black";
+                if (info_dust[2] > 50) {
+                    _corner3.style.backgroundColor = "#ED6414";
+                    if (info_dust[2] > 80) {
+                        _corner3.style.backgroundColor = "#F16570";
+                        _corner3.style.color = "white";
+                    }
+                }
+                _corner4.style.backgroundColor = "white";
+                _corner4.style.color = "black";
+                if (info_dust[3] > 50) {
+                    _corner4.style.backgroundColor = "#ED6414";
+                    if (info_dust[3] > 80) {
+                        _corner4.style.backgroundColor = "#F16570";
+                        _corner4.style.color = "white";
+                    }
+                }
+                _corner1.innerHTML = "corner1 <br>" + info_dust[0];
+                _corner2.innerHTML = "corner2 <br>" + info_dust[1];
+                _corner3.innerHTML = "corner3 <br>" + info_dust[2];
+                _corner4.innerHTML = "corner4 <br>" + info_dust[3];
+
+                _destination.innerHTML = "Destination : corner" + dust_spot;
+                receive_pre_data = receive_data
+                /****************************************************************/
+            }
+        }
+        /****************************************************************/
+    </script>
+</head>
+
+<body>
+    <div class="blank_main">
+        <div class="blank_side"></div>
+        <div class="main_article">
+            <button class="main_title" onclick="location.href='index.html'">
+                Removing fine dust
+            </button>
+            <div class="main_1">
+                <div class="main_1_dust">Now Fine Dust Status</div>
+                <div style="height: 0.3em"></div>
+                <div calss="main_1_image">
+                    <span style="display:inline-block; width:0.1em;"></span>
+                    <div class="main_1_graph" id="main1_graph">
+                        100%
+                    </div>
+                    <span style="display:inline-block; width:0.1em;"></span>
+                </div>
+                <div style="height: 0.5em;"></div>
+                <div class="main_1_status">
+                    <div id="main1_out">OUTSIDE status : 10</div>
+                    <div id="main1_in">INSIDE status : 60</div>
+                </div>
+                <div class="main_1_status2" id="main1_state">
+                    Open the window
+                    <!-- If open : Open the window / close : Close the window-->
+                </div>
+            </div>
+            <div style="height: 1em;"></div>
+            <div class="main_2">
+                <div class="main_2_rc">RC Car Status</div>
+                <div style="height: 0.3em"></div>
+                <div class="main_2_box">
+                    <div class="col_line">
+                        <span class="low_line" id="corner1">corner1<br>60</span>
+                        <span class="low_blank"></span>
+                        <span class="low_line" id="corner4">corner4</span>
+                    </div>
+                    <div class="col_blank"></div>
+                    <div class="col_line">
+                        <span class="low_line" id="corner2">corner2</span>
+                        <span class="low_blank"></span>
+                        <span class="low_line" id="corner3">corner3</span>
+                    </div>
+                </div>
+                <div style="height: 0.5em"></div>
+                <div class="main_2_status" id="destination">Destination : corner1</div>
+            </div>
+        </div>
+        <div class="blank_side"></div>
+    </div>
+    <div class="blank_bot"></div>
+
+</body>
+
+</html>

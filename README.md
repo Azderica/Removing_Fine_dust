@@ -21,7 +21,7 @@ Later, the project will be used for webOS contest and IOT contest.
 
 
 ## 3. project content
-''System Diagram''
+System Diagram
 ![image](https://user-images.githubusercontent.com/36303777/62603673-5dd09e80-b931-11e9-8ae4-fc2d624226c0.png)
 
 

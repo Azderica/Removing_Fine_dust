@@ -8,8 +8,15 @@ import find_dust_spot
 from websocket import create_connection
 import random
 
+from urllib.request import Request, urlopen
+from urllib.parse import urlencode, quote_plus
+import json
+
 HOST = ''
 PORT = 9009
+url = 'http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnMesureSidoLIst'
+queryParams = '?serviceKey=Dc6ewA1eR8iB5JzsB5vrC8Bt9Xs%2F43rSAnXksoR3ZYoaAs3qb%2F8sfb8zeMdDtg4ZHrnEO4j1aSQCQshB5h2P1A%3D%3D&numOfRows=10&pageNo=1&sidoName=%EB%8C%80%EA%B5%AC&searchCondition=DAILY&_returnType=json'
+dict = ""
 
 class Arduino: #아두이노 미세먼지 모듈
    def __init__(self,msg):
@@ -73,6 +80,7 @@ lock = threading.Lock() # syncronized 동기화 진행하는 스레드 생성
 module ={} #아두이노 저장
 
 module["camera"] = Cleaner("100,100,12345")
+module["window"] = 0 #닫힌상태
 module["arduino"] = Arduino("b'40\\r\\n',b'20\\r\\n',b'30\\r\\n',b'99\\r\\n',")
 dust = find_dust_spot.FindDust(module["arduino"].getA1(),module["arduino"].getA2(),module["arduino"].getA3(),module["arduino"].getA4())
 ws = create_connection("ws://15.164.166.134:8000/")
@@ -127,7 +135,25 @@ class UserManager: # 사용자관리 메세지 전송을 담당하는 클래스
             module[username].setArduino(msg)
          else:
             module[username]=Arduino(msg)
+         request = Request(url + queryParams)
+         request.get_method = lambda: 'GET'
+         response_body = urlopen(request).read()
+         dict = json.loads(response_body)
+         average = module[username].getA1()+module[username].getA2()+module[username].getA3()+module[username].getA4()
+         average = average/4
+         print("외부 미세먼지 농도 : "+ dict["list"][4]["pm10Value"])
+         print("내부 미세먼지 평균 : "+ str(average))
+         dust_msg = str(module["arduino"].getA1())+","+str(module["arduino"].getA2())+","+str(module["arduino"].getA3())+","+str(module["arduino"].getA4())
+         dust_msg = dust_msg +":"+str(module["camera"].getX())+","+str(module["camera"].getY()) 
+         dust_msg = dust_msg +":"+str(dict["list"][4]["pm10Value"])
+         print("sending data to aws : "+ dust_msg)
+         ws.send(dust_msg)
+         if float(dict["list"][4]["pm10Value"]) < average:#외부농도가 낮을때
+            module["window"]=1
+         else :
+            module["window"]=0
          print(username+" : "+str(module[username].getA1())+","+str(module[username].getA2())+","+str(module[username].getA3())+","+str(module[username].getA4()))
+         
       else:
          #print("카메라 말고")
          val = int(msg)
@@ -159,7 +185,6 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
          self.userman.addUser(username, self.request, self.client_address)
          #print("제발")
          while True:
-            
             dest = dust.getDest(module["arduino"].getA1(),module["arduino"].getA2(),module["arduino"].getA3(),module["arduino"].getA4()) 
             
             #dust.sendMap()
@@ -177,18 +202,18 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
             elif dest == 3:
                rad = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),350,50,module["camera"].getRad())
                distance = dust.getMoveDistance(module["camera"].getX(), module["camera"].getY(), 350, 50)
-               print("목적지"+str(dest)+":350,50")
+               print("목적지"+str(dest)+":400,50")
             elif dest == 4:
                rad = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),350,350,module["camera"].getRad())
                distance = dust.getMoveDistance(module["camera"].getX(), module["camera"].getY(), 350, 350)
-               print("목적지"+str(dest)+":350,350")
+               print("목적지"+str(dest)+":400,350")
             else:
                rad = dust.getMoveRad(module["camera"].getX(),module["camera"].getY(),200,200,module["camera"].getRad())
                distance = dust.getMoveDistance(module["camera"].getX(), module["camera"].getY(), 200, 200)
                print("목적지"+str(dest)+":200,200")
    
             print("getmoverad : "+ str(rad))
-            if distance > 15:
+            if distance > 10:
                if rad > 0.5:
                   val1 = 150 
                   val2 = 0
@@ -202,23 +227,30 @@ class MyTcpHandler(socketserver.BaseRequestHandler):
             else :
                val1 = 0
                val2 = 0
+
+            if module["window"] == 1:#열려 있을때
+               val1 = 0
+               val2 = 0
+               
             print(str(int(val1))+","+str(val2)+"전송")
             #self.userman.sendMessageToUser(username, str(val1)+",0")
             #self.userman.sendMessageToUser(username, "0,"+str(val2))
             self.userman.sendMessageToUser(username, str(int(val1))+","+str(val2))
-            #print("sending data to aws")
-            time.sleep(1)
-            #dust_msg = dust.getMessage() +":"+"0,0"
-            dust_msg = str(module["arduino"].getA1())+","+str(module["arduino"].getA2())+","+str(module["arduino"].getA3())+","+str(module["arduino"].getA4())
-            dust_msg = dust_msg +":"+str(module["camera"].getX())+","+str(module["camera"].getY()) 
-            print("sending data to aws : "+ dust_msg)
-            ws.send(dust_msg)
             print("전송완료")
+            #print("sending data to aws")
+            time.sleep(2)
+            #dust_msg = dust.getMessage() +":"+"0,0"
             #self.userman.sendMessageToUser(username,"1000,"+str(val2))
             #self.userman.sendMessageToAll("50,50")
-            time.sleep(5)
+         
             
-               
+      #if self.client_address[0]=='스텝모터 ip':
+         #username = 'window'
+         #self.userman.addUser(username, self.request, self.client_address)
+         #print("제발")
+         #while True:
+
+
       else:
          try:
             username = self.registerUsername()
@@ -272,3 +304,4 @@ def receive(sock):
         print('', recvData.decode('utf-8'))
 
 runServer()
+

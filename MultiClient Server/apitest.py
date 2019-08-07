@@ -3,7 +3,7 @@ from urllib.parse import urlencode, quote_plus
 import json
 
 url = 'http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnMesureSidoLIst'
-serviceKey = 'serviceKey'
+serviceKey = 'Dc6ewA1eR8iB5JzsB5vrC8Bt9Xs%2F43rSAnXksoR3ZYoaAs3qb%2F8sfb8zeMdDtg4ZHrnEO4j1aSQCQshB5h2P1A%3D%3D'
 queryParams = '?serviceKey='+serviceKey+'&numOfRows=10&pageNo=1&sidoName=%EB%8C%80%EA%B5%AC&searchCondition=DAILY&_returnType=json'
 
 

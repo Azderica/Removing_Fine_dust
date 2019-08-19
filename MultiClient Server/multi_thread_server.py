@@ -15,7 +15,7 @@ import json
 HOST = ''
 PORT = 9009
 url = 'http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnMesureSidoLIst'
-queryParams = '?serviceKey=servicekey&numOfRows=10&pageNo=1&sidoName=%EB%8C%80%EA%B5%AC&searchCondition=DAILY&_returnType=json'
+queryParams = '?serviceKey=Dc6ewA1eR8iB5JzsB5vrC8Bt9Xs%2F43rSAnXksoR3ZYoaAs3qb%2F8sfb8zeMdDtg4ZHrnEO4j1aSQCQshB5h2P1A%3D%3D&numOfRows=10&pageNo=1&sidoName=%EB%8C%80%EA%B5%AC&searchCondition=DAILY&_returnType=json'
 dict = ""
 
 class Arduino: #아두이노 미세먼지 모듈

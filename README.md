@@ -3,26 +3,38 @@
 This project is a project for an internship in India.<br>
 Later, the project will be used for webOS contest and IOT contest.
 
-
-> Chat server : [INDO-KNU](https://etherpad.openstack.org/p/INDO-KNU)
-
-
-> Platform : WebOs, Arduino, Raspberry pie
+> Platform : WebOs(Web), Arduino, Raspberry pie, AWS cloud
 
 
 ## 1. Project Description
-> This project is about removing fine dust. Main objective of this project is to go to a lot of ine dust and remove fine dust
+> System to efficiently purify inside air using moving air purifier and widow control.
 
 
 ## 2. Project Schedule
 > ~ 2019.07.13 : [LG webOS IoT Hackathon](http://enroll.lgsoftindia.com/webos/login.aspx)
 
+![image](https://user-images.githubusercontent.com/36303777/63261829-61640e00-c2bf-11e9-9d16-00312b817a6c.png)
+
+
+
 > ~ 2019.07.26 : [Wiznet IOT contest](http://maker.wiznet.io)
+
+
+[Wiznet contest Final video](https://www.youtube.com/watch?v=-WiPMvjq60g)
 
 
 ## 3. project content
 System Diagram
-![image](https://user-images.githubusercontent.com/36303777/62603673-5dd09e80-b931-11e9-8ae4-fc2d624226c0.png)
+![image](https://user-images.githubusercontent.com/36303777/63261592-d420b980-c2be-11e9-9f1f-0ba79afd67a8.png)
+
+
+
+
+UI(Web) Design
+
+![image](https://user-images.githubusercontent.com/36303777/63262092-07b01380-c2c0-11e9-88df-8759f65a7f52.png)
+
+
 
 
 
